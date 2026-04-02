@@ -22,11 +22,14 @@ import com.github.paohaijiao.mapper.JLambdaUpdate;
 import com.github.paohaijiao.model.JParam;
 
 import java.io.Serializable;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
 public class JLambdaMapperImpl<T> implements JLambdaMapper<T> {
+
     private final Class<T> entityClass;
+
     private final JSqlConnection sqlSession;
 
     public JLambdaMapperImpl(Class<T> entityClass, JSqlConnection sqlSession) {
@@ -84,6 +87,17 @@ public class JLambdaMapperImpl<T> implements JLambdaMapper<T> {
     @Override
     public JLambdaUpdate<T> update() {
         return new LambdaUpdateImpl<>(entityClass, sqlSession);
+    }
+
+    @Override
+    public void close() {
+        try {
+            if (sqlSession != null && sqlSession.getConnection() != null) {
+                sqlSession.getConnection().close();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to close connection", e);
+        }
     }
 
 }

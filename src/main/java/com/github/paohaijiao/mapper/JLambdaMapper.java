@@ -89,4 +89,6 @@ public interface JLambdaMapper<T> {
      * @return
      */
     JLambdaUpdate<T> update();
+
+    void close();
 }
