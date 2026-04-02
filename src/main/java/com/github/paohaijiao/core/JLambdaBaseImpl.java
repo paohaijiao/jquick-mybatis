@@ -39,9 +39,13 @@ import java.util.stream.Collectors;
 import static com.github.paohaijiao.resultSet.JResultSetMapper.TYPE_HANDLERS;
 
 public abstract class JLambdaBaseImpl<T> {
+
     protected final List<JCondition> conditions = new ArrayList<>();
+
     protected final List<JOrder> orders = new ArrayList<>();
+
     protected Class<T> entityClass;
+
     protected JSqlConnection sqlConnection;
 
     protected static String fillSqlWithEntity(String sqlTemplate, Object entity) {
@@ -85,9 +89,7 @@ public abstract class JLambdaBaseImpl<T> {
 
     protected String getColumnName(Field field) {
         JColumn columnAnnotation = field.getAnnotation(JColumn.class);
-        return columnAnnotation != null && !columnAnnotation.value().isEmpty()
-                ? columnAnnotation.value()
-                : JStringUtils.camelToUnderline(field.getName());
+        return columnAnnotation != null && !columnAnnotation.value().isEmpty() ? columnAnnotation.value() : JStringUtils.camelToUnderline(field.getName());
     }
 
     protected String getColumnName(JSFunction<T, ?> column) {

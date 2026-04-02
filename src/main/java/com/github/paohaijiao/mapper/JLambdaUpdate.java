@@ -20,10 +20,10 @@ import com.github.paohaijiao.function.JSFunction;
 import java.util.Collection;
 
 public interface JLambdaUpdate<T> {
+
     JLambdaUpdate<T> set(JSFunction<T, ?> column, Object value);
 
     JLambdaUpdate<T> eq(JSFunction<T, ?> column, Object value);
-
 
     public JLambdaUpdate<T> ne(JSFunction<T, ?> column, Object value);
 

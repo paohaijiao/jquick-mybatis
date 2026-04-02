@@ -58,6 +58,7 @@ public class JSQLMain {
         userPo.setName("kimoo");
         userPo.setAge(12);
         int i = userMapper.insert(userPo);
+        userMapper.close();
         System.out.println(i);
     }
 

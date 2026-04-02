@@ -29,10 +29,7 @@ public abstract class JQuickConnection implements JDBConnection {
 
 
     public boolean validate() {
-        return getDriverClassName() != null
-                && !getDriverClassName().isEmpty()
-                && getUrl() != null
-                && !getUrl().isEmpty();
+        return getDriverClassName() != null && !getDriverClassName().isEmpty() && getUrl() != null && !getUrl().isEmpty();
     }
 
 }

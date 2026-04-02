@@ -20,6 +20,7 @@ import com.github.paohaijiao.core.JLambdaMapperImpl;
 import com.github.paohaijiao.mapper.JLambdaMapper;
 
 public class JLambdaMapperFactory {
+
     private final JSqlConnectionFactory sqlConnectionFactory;
 
     public JLambdaMapperFactory(JSqlConnectionFactory sqlSessionFactory) {

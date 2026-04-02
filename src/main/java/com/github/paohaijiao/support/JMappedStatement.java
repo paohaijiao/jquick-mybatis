@@ -22,10 +22,15 @@ import java.util.List;
 
 @Data
 public class JMappedStatement {
+
     private String id;
+
     private String sql;
+
     private Class<?> resultType;
+
     private Type resultGenericType;
+
     private List<JParameterMapping> parameterMappings;
 
     public Type getResultGenericType() {

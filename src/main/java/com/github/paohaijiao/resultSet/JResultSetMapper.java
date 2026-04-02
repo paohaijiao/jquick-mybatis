@@ -32,6 +32,7 @@ import java.util.Map;
  * @since 2025/7/8
  */
 public class JResultSetMapper {
+
     public static final Map<Class<?>, JTypeHandler<?>> TYPE_HANDLERS = new HashMap<>();
 
     static {
