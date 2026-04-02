@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <!ELEMENT mapper (sql*, insert*, delete*, update*, select*)>
+     <!ATTLIST mapper
+                namespace CDATA #REQUIRED
+     >
+
+    <!ELEMENT sql (#PCDATA)>
+    <!ATTLIST sql
+                name CDATA #REQUIRED
+    >
+    <!ELEMENT insert (#PCDATA | if* | foreach*)*>
+     <!ATTLIST insert
+                name CDATA #REQUIRED
+                paramClass CDATA #IMPLIED
+                returnClass CDATA #IMPLIED
+                >
+
+     <!ELEMENT delete (#PCDATA | if* | foreach*)*>
+     <!ATTLIST delete
+                name CDATA #REQUIRED
+                paramClass CDATA #IMPLIED
+                >
+
+     <!ELEMENT update (#PCDATA | if*)*>
+     <!ATTLIST update
+                name CDATA #REQUIRED
+                paramClass CDATA #IMPLIED
+                >
+
+     <!ELEMENT select (#PCDATA | include* | if* | foreach*)*>
+     <!ATTLIST select
+                name CDATA #REQUIRED
+                paramClass CDATA #IMPLIED
+                returnClass CDATA #IMPLIED
+                >
+
+     <!ELEMENT if (#PCDATA | if*)*>
+     <!ATTLIST if
+                test CDATA #REQUIRED
+                >
+
+     <!ELEMENT foreach (#PCDATA)*>
+     <!ATTLIST foreach
+                collection CDATA #REQUIRED
+                item CDATA #REQUIRED
+                open CDATA #IMPLIED
+                close CDATA #IMPLIED
+                separator CDATA #IMPLIED
+                >
+
+     <!ELEMENT include EMPTY>
+     <!ATTLIST include
+                refid CDATA #REQUIRED
+                >
