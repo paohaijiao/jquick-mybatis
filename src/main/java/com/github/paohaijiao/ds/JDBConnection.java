@@ -1,6 +1,6 @@
 package com.github.paohaijiao.ds;
 
-public interface JDBConnectionConfig {
+public interface JDBConnection {
 
     String getDriverClassName();
 

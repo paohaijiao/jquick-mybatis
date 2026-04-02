@@ -1,10 +1,10 @@
 package com.github.paohaijiao.ds.impl;
 
-import com.github.paohaijiao.ds.JDBCBaseConnectionConfig;
+import com.github.paohaijiao.ds.JQuickConnection;
 
 import java.util.Properties;
 
-public class JBasicJDBConnectionConfig extends JDBCBaseConnectionConfig {
+public class JBasicConnection extends JQuickConnection {
 
     private String driverClassName;
 
@@ -15,14 +15,14 @@ public class JBasicJDBConnectionConfig extends JDBCBaseConnectionConfig {
     private String password;
 
 
-    public JBasicJDBConnectionConfig(String driverClassName, String url, String username, String password) {
+    public JBasicConnection(String driverClassName, String url, String username, String password) {
         this.driverClassName = driverClassName;
         this.url = url;
         this.username = username;
         this.password = password;
     }
 
-    private JBasicJDBConnectionConfig(Properties properties) {
+    private JBasicConnection(Properties properties) {
         this.driverClassName = properties.getProperty("driverClassName");
         this.url = properties.getProperty(url);
         this.username = properties.getProperty(username);

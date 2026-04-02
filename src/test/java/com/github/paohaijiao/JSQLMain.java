@@ -17,8 +17,8 @@ package com.github.paohaijiao;
 
 import com.github.paohaijiao.connection.JSqlConnectionFactory;
 import com.github.paohaijiao.connection.impl.DefaultSqlConnectionactory;
-import com.github.paohaijiao.ds.JDBCBaseConnectionConfig;
-import com.github.paohaijiao.ds.impl.JBasicJDBConnectionConfig;
+import com.github.paohaijiao.ds.JQuickConnection;
+import com.github.paohaijiao.ds.impl.JBasicConnection;
 import com.github.paohaijiao.factory.JLambdaMapperFactory;
 import com.github.paohaijiao.mapper.JLambdaMapper;
 import com.github.paohaijiao.model.JPage;
@@ -42,13 +42,14 @@ public class JSQLMain {
         String password = "13579admin";
         String clazz = "com.mysql.cj.jdbc.Driver";
         String url = "jdbc:mysql://192.168.32.132:3306/test?serverTimezone=UTC";
-        JDBCBaseConnectionConfig config = new JBasicJDBConnectionConfig(clazz, url, userName, password);
+        JQuickConnection config = new JBasicConnection(clazz, url, userName, password);
         return config.createDataSource();
     }
 
 
     @Test
     public void insert() throws IOException, SQLException, ClassNotFoundException {
+        DataSource connection=getDBConfig();
         JSqlConnectionFactory sqlSessionFactory = new DefaultSqlConnectionactory(getDBConfig());
         JLambdaMapperFactory factory = new JLambdaMapperFactory(sqlSessionFactory);
         JLambdaMapper<JUser> userMapper = factory.createMapper(JUser.class);

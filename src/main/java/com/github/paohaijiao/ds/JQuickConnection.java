@@ -6,7 +6,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 
-public abstract class JDBCBaseConnectionConfig implements JDBConnectionConfig {
+public abstract class JQuickConnection implements JDBConnection {
 
 
     public DataSource createDataSource() throws SQLException, ClassNotFoundException {
