@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//JQUICK//DTD MYBATIS MAPPER 1.0//EN"
+        "classpath:paohaijiao/dtd/Jquick-mybatis.dtd">
+<mapper namespace="com.example.mapper.UserMapper">
+    <insert name="insertUser" paramClass="com.github.paohaijiao.model.User">
+        INSERT INTO test.t_user (
+            <if test="user.id != null">id,</if>
+            <if test="user.username != null">username,</if>
+            <if test="user.password != null">password,</if>
+            <if test="user.age != null">age,</if>
+            <if test="user.email != null">email,</if>
+            <if test="user.status != null">status</if>
+        ) VALUES (
+            <if test="user.id != null">#{user.id},</if>
+            <if test="user.username != null">#{user.username},</if>
+            <if test="user.password != null">#{user.password},</if>
+            <if test="user.age != null">#{user.age},</if>
+            <if test="user.email != null">#{user.email},</if>
+            <if test="user.status != null">#{user.status}</if>
+        )
+    </insert>
+
+<insert name="batchInsertUser">
+        INSERT INTO user (username, password, age, email, status)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.username}, #{item.password}, #{item.age}, #{item.email}, #{item.status})
+        </foreach>
+</insert>
+
+<delete name="deleteUserById" paramClass="java.lang.Long">
+        DELETE FROM user WHERE id = #{id}
+</delete>
+
+<delete name="batchDeleteUser">
+        DELETE FROM user WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+</delete>
+
+<update name="updateUser" paramClass="com.github.paohaijiao.model.User">
+    UPDATE user
+        set
+        <if test="username != null">username = #{username},</if>
+        <if test="password != null">password = #{password},</if>
+        <if test="age != null">age = #{age},</if>
+        <if test="email != null">email = #{email},</if>
+        <if test="status != null">status = #{status},</if>
+    WHERE id = #{id}
+</update>
+
+<select name="getUserById" returnClass="">
+    SELECT * FROM user WHERE id = #{id}
+</select>
+
+<select name="findUserList" paramClass="com.github.paohaijiao.model.User" returnClass="">
+        SELECT * FROM user
+            where
+            <if test="username != null and username != ''">
+                AND username LIKE CONCAT('%', #{username}, '%')
+            </if>
+            <if test="age != null">
+                AND age = #{age}
+            </if>
+            <if test="email != null and email != ''">
+                AND email = #{email}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        ORDER BY id DESC
+</select>
+
+<select name="getUserByIds" returnClass="BaseResultMap">
+        SELECT * FROM user WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+</select>
+</mapper>

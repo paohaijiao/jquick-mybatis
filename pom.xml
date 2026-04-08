@@ -4,14 +4,31 @@
     <parent>
         <groupId>io.github.paohaijiao</groupId>
         <artifactId>javelin</artifactId>
-        <version>1.4.0</version>
+        <version>1.4.2</version>
     </parent>
     <artifactId>jquick-mybatis</artifactId>
     <dependencies>
         <dependency>
+            <groupId>com.dameng</groupId>
+            <artifactId>DmJdbcDriver</artifactId>
+            <version>8.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/resources/lib/DmJdbcDriver18-8.1.2.192.jar</systemPath>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${commons-lang3.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.paohaijiao</groupId>
+            <artifactId>jquick-xmlProxy</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.paohaijiao</groupId>
+            <artifactId>javelin-core</artifactId>
+            <version>1.4.2</version>
         </dependency>
         <dependency>
             <groupId>cn.hutool</groupId>
@@ -38,11 +55,6 @@
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <version>${hikariCp.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.github.paohaijiao</groupId>
-            <artifactId>javelin-core</artifactId>
-            <version>${javelin.version}</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>

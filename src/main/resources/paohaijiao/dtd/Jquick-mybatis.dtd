@@ -1,46 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
-  <!ELEMENT mapper (sql*, insert*, delete*, update*, select*)>
-     <!ATTLIST mapper
+
+        <!-- 根元素 -->
+        <!ELEMENT mapper (insert*, delete*, update*, select*)>
+        <!ATTLIST mapper
                 namespace CDATA #REQUIRED
-     >
+                >
 
-    <!ELEMENT sql (#PCDATA)>
-    <!ATTLIST sql
-                name CDATA #REQUIRED
-    >
-    <!ELEMENT insert (#PCDATA | if* | foreach*)*>
-     <!ATTLIST insert
+        <!-- SQL 操作标签 - 允许任意混合内容 -->
+        <!ELEMENT insert ANY>
+        <!ATTLIST insert
                 name CDATA #REQUIRED
                 paramClass CDATA #IMPLIED
                 returnClass CDATA #IMPLIED
                 >
 
-     <!ELEMENT delete (#PCDATA | if* | foreach*)*>
-     <!ATTLIST delete
+        <!ELEMENT delete ANY>
+        <!ATTLIST delete
                 name CDATA #REQUIRED
                 paramClass CDATA #IMPLIED
                 >
 
-     <!ELEMENT update (#PCDATA | if*)*>
-     <!ATTLIST update
+        <!ELEMENT update ANY>
+        <!ATTLIST update
                 name CDATA #REQUIRED
                 paramClass CDATA #IMPLIED
                 >
 
-     <!ELEMENT select (#PCDATA | include* | if* | foreach*)*>
-     <!ATTLIST select
+        <!ELEMENT select ANY>
+        <!ATTLIST select
                 name CDATA #REQUIRED
                 paramClass CDATA #IMPLIED
                 returnClass CDATA #IMPLIED
                 >
 
-     <!ELEMENT if (#PCDATA | if*)*>
-     <!ATTLIST if
+        <!-- 动态 SQL 标签 -->
+        <!ELEMENT if ANY>
+        <!ATTLIST if
                 test CDATA #REQUIRED
                 >
 
-     <!ELEMENT foreach (#PCDATA)*>
-     <!ATTLIST foreach
+        <!ELEMENT foreach ANY>
+        <!ATTLIST foreach
                 collection CDATA #REQUIRED
                 item CDATA #REQUIRED
                 open CDATA #IMPLIED
@@ -48,7 +48,32 @@
                 separator CDATA #IMPLIED
                 >
 
-     <!ELEMENT include EMPTY>
-     <!ATTLIST include
-                refid CDATA #REQUIRED
+        <!ELEMENT choose (when*, otherwise?)>
+        <!ATTLIST choose
+                xmlns CDATA #IMPLIED
+                >
+
+        <!ELEMENT when ANY>
+        <!ATTLIST when
+                test CDATA #REQUIRED
+                >
+
+        <!ELEMENT otherwise ANY>
+
+        <!ELEMENT where ANY>
+        <!ATTLIST where
+                xmlns CDATA #IMPLIED
+                >
+
+        <!ELEMENT set ANY>
+        <!ATTLIST set
+                xmlns CDATA #IMPLIED
+                >
+
+        <!ELEMENT trim ANY>
+        <!ATTLIST trim
+                prefix CDATA #IMPLIED
+                suffix CDATA #IMPLIED
+                prefixOverrides CDATA #IMPLIED
+                suffixOverrides CDATA #IMPLIED
                 >

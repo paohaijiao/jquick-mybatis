@@ -50,7 +50,7 @@ public class JSQLMain {
     @Test
     public void insert() throws IOException, SQLException, ClassNotFoundException {
         DataSource connection=getDBConfig();
-        JSqlConnectionFactory sqlSessionFactory = new DefaultSqlConnectionactory(getDBConfig());
+        JSqlConnectionFactory sqlSessionFactory = new DefaultSqlConnectionactory(connection);
         JLambdaMapperFactory factory = new JLambdaMapperFactory(sqlSessionFactory);
         JLambdaMapper<JUser> userMapper = factory.createMapper(JUser.class);
         JUser userPo = new JUser();
