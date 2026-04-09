@@ -34,13 +34,13 @@ public class JQuickMyBatisXmlInvocationHandler extends JQuickXmlInvocationHandle
         JAssert.notNull(connection, "Connection is null");
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
             Class<?> returnType = method.getReturnType();
             Type genericReturnType = method.getGenericReturnType();
             if (returnType.equals(Void.TYPE) || returnType.equals(java.lang.Void.class)) {
                 return null;
             }
             JTypeReference<?> typeRef = createTypeReference(genericReturnType);
-            ResultSet rs = stmt.executeQuery();
             return JdbcResultMapper.mapResultSet(rs, typeRef);
         } catch (Exception e) {
             e.printStackTrace();

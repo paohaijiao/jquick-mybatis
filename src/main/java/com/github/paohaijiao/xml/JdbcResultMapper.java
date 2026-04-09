@@ -3,10 +3,10 @@ package com.github.paohaijiao.xml;
 import com.github.paohaijiao.type.JTypeReference;
 
 import java.lang.reflect.*;
-import java.lang.reflect.Array;
-import java.sql.*;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.Timestamp;
 import java.util.*;
-import java.util.Date;
 
 public class JdbcResultMapper {
 
@@ -15,10 +15,10 @@ public class JdbcResultMapper {
      */
     @SuppressWarnings("unchecked")
     public static <T> T mapResultSet(ResultSet rs, JTypeReference<T> typeReference) throws Exception {
-        if (rs == null || !rs.next()) {
+        if (rs == null) {
             return null;
         }
-        Class<?> rawType = typeReference.getRawType();
+        Class<?> rawType = getActualRawType(typeReference);
         if (rawType == Integer.class || rawType == int.class) {
             return (T) Integer.valueOf(rs.getInt(1));
         }
@@ -55,20 +55,189 @@ public class JdbcResultMapper {
         return (T) mapToBean(rs, rawType);
     }
 
-    /**
-     * 将 ResultSet 转换为 List
-     */
-    private static <E> List<E> mapToList(ResultSet rs, JTypeReference<?> typeReference) throws Exception {
-        List<E> list = new ArrayList<>();
-        Type[] actualArgs = typeReference.getActualTypeArguments();
-        if (actualArgs.length == 1) {
-            JTypeReference<E> elementTypeRef = new JTypeReference.AccessibleJTypeReference<>(actualArgs[0]);
-            do {
-                E element = mapResultSetToSingleRow(rs, elementTypeRef);
-                list.add(element);
-            } while (rs.next());
+    public static Class<?> getActualRawType(JTypeReference<?> typeReference) {
+        Type type = typeReference.getType();
+        if (type instanceof ParameterizedType) {
+            Type rawType = ((ParameterizedType) type).getRawType();
+            if (rawType instanceof Class) {
+                return (Class<?>) rawType;
+            }
         }
-        return list;
+        if (type instanceof Class) {
+            return (Class<?>) type;
+        }
+        return typeReference.getRawType();
+    }
+    private static <E> List<E> mapToList(ResultSet rs, JTypeReference<?> typeReference) throws Exception {
+        List<E> resultList = new ArrayList<>();
+        if (typeReference == null) {
+            throw new IllegalArgumentException("JTypeReference cannot be null");
+        }
+        Type type = typeReference.getType();
+        Type elementType = getCollectionElementType(type);
+        Class<?> elementRawClass = getRawClass(elementType);
+        ResultSetMetaData metaData = rs.getMetaData();
+        while (rs.next()) {
+            Object mappedObject;
+            if (Map.class.isAssignableFrom(elementRawClass)) {
+                mappedObject = convertToMap(rs, metaData, elementType);
+            } else if (isSimpleType(elementRawClass)) {
+                mappedObject = rs.getObject(1);
+                mappedObject = convertValueToType(mappedObject, elementRawClass);
+            } else {
+                mappedObject = convertToEntity(rs, metaData, elementRawClass);
+            }
+            @SuppressWarnings("unchecked")
+            E castedObject = (E) mappedObject;
+            resultList.add(castedObject);
+        }
+
+        return resultList;
+    }
+
+    /**
+     * 获取集合类型的元素类型
+     * 例如：List<User> -> User.class
+     * List<Map<String, Object>> -> ParameterizedType of Map
+     */
+    private static Type getCollectionElementType(Type collectionType) {
+        if (collectionType instanceof ParameterizedType) {
+            ParameterizedType pt = (ParameterizedType) collectionType;
+            Type[] actualTypeArguments = pt.getActualTypeArguments();
+            if (actualTypeArguments.length > 0) {
+                return actualTypeArguments[0];
+            }
+        }
+        return Object.class;
+    }
+
+    private static <T> T convertToEntity(ResultSet rs, ResultSetMetaData metaData, Class<T> entityClass) throws Exception {
+        T instance = entityClass.getDeclaredConstructor().newInstance();
+        int columnCount = metaData.getColumnCount();
+        Map<String, Field> fieldMap = getAllFields(entityClass);
+        for (int i = 1; i <= columnCount; i++) {
+            String columnName = metaData.getColumnLabel(i);
+            Object columnValue = rs.getObject(i);
+            Field field = fieldMap.get(columnName);
+            if (field == null) {
+                field = fieldMap.get(underscoreToCamelCase(columnName));
+            }
+            if (field == null) {
+                field = fieldMap.get(columnName.toLowerCase());
+            }
+
+            if (field != null) {
+                field.setAccessible(true);
+                Object convertedValue = convertValueToType(columnValue, field.getType());
+                field.set(instance, convertedValue);
+            }
+        }
+        return instance;
+    }
+
+    /**
+     * 下划线转驼峰
+     */
+    private static String underscoreToCamelCase(String underscore) {
+        if (underscore == null || underscore.isEmpty()) {
+            return underscore;
+        }
+        StringBuilder result = new StringBuilder();
+        boolean nextUpperCase = false;
+        for (char c : underscore.toCharArray()) {
+            if (c == '_') {
+                nextUpperCase = true;
+            } else {
+                if (nextUpperCase) {
+                    result.append(Character.toUpperCase(c));
+                    nextUpperCase = false;
+                } else {
+                    result.append(Character.toLowerCase(c));
+                }
+            }
+        }
+        return result.toString();
+    }
+
+    private static Map<String, Field> getAllFields(Class<?> clazz) {
+        Map<String, Field> fieldMap = new LinkedHashMap<>();
+        Class<?> currentClass = clazz;
+        while (currentClass != null && currentClass != Object.class) {
+            Field[] fields = currentClass.getDeclaredFields();
+            for (Field field : fields) {
+                fieldMap.put(field.getName(), field);
+            }
+            currentClass = currentClass.getSuperclass();
+        }
+
+        return fieldMap;
+    }
+
+    private static boolean isMapType(Type type) {
+        Class<?> rawClass = getRawClass(type);
+        return Map.class.isAssignableFrom(rawClass);
+    }
+
+    private static Map<?, ?> convertToMap(ResultSet rs, ResultSetMetaData metaData, Type mapType) throws Exception {
+        int columnCount = metaData.getColumnCount();
+        Class<?> keyType = String.class;
+        Class<?> valueType = Object.class;
+        if (mapType instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = (ParameterizedType) mapType;
+            Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+            if (actualTypeArguments.length >= 1) {
+                keyType = getRawClass(actualTypeArguments[0]);
+            }
+            if (actualTypeArguments.length >= 2) {
+                valueType = getRawClass(actualTypeArguments[1]);
+            }
+        }
+        Map<Object, Object> resultMap = createMapInstance(getRawClass(mapType));
+        for (int i = 1; i <= columnCount; i++) {
+            String columnName = metaData.getColumnLabel(i);
+            Object columnValue = rs.getObject(i);
+            Object convertedKey = convertValueToType(columnName, keyType);
+            Object convertedValue = convertValueToType(columnValue, valueType);
+            resultMap.put(convertedKey, convertedValue);
+        }
+
+        return resultMap;
+    }
+
+    private static Map<Object, Object> createMapInstance(Class<?> mapClass) throws Exception {
+        if (mapClass == null || mapClass == Map.class) {
+            return new LinkedHashMap<>();
+        }
+        if (mapClass.isInterface()) {
+            if (mapClass == java.util.SortedMap.class) {
+                return new java.util.TreeMap<>();
+            }
+            return new LinkedHashMap<>();
+        }
+        return (Map<Object, Object>) mapClass.getDeclaredConstructor().newInstance();
+    }
+
+    private static Class<?> getRawClass(Type type) {
+        if (type instanceof Class) {
+            return (Class<?>) type;
+        }
+        if (type instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = (ParameterizedType) type;
+            Type rawType = parameterizedType.getRawType();
+            if (rawType instanceof Class) {
+                return (Class<?>) rawType;
+            }
+        }
+        if (type instanceof GenericArrayType) {
+            return Object[].class;
+        }
+        if (type instanceof TypeVariable) {
+            return Object.class;
+        }
+        if (type instanceof WildcardType) {
+            return Object.class;
+        }
+        return Object.class;
     }
 
     /**
@@ -87,34 +256,86 @@ public class JdbcResultMapper {
 
         return set;
     }
-
     /**
      * 将 ResultSet 转换为 Map
+     * 每一行数据作为一个 Map，列名作为 key，列值作为 value
+     * 兼容泛型参数缺失的情况，默认 key 为 String，value 为 Object
+     *
+     * @param rs ResultSet 结果集
+     * @param typeReference 类型引用
+     * @return Map 对象（单行）或 List<Map>（多行，取决于外层包装）
      */
-    private static <K, V> Map<K, V> mapToMap(ResultSet rs, JTypeReference<?> typeReference) throws Exception {
-        Map<K, V> map = new HashMap<>();
+    private static Map<?, ?> mapToMap(ResultSet rs, JTypeReference<?> typeReference) throws Exception {
+        if (rs == null) {
+            return new LinkedHashMap<>();
+        }
         Type[] actualArgs = typeReference.getActualTypeArguments();
-        if (actualArgs.length == 2) {
-            JTypeReference<K> keyTypeRef = new JTypeReference.AccessibleJTypeReference<>(actualArgs[0]);
-            JTypeReference<V> valueTypeRef = new JTypeReference.AccessibleJTypeReference<>(actualArgs[1]);
-
-            ResultSetMetaData metaData = rs.getMetaData();
-            int columnCount = metaData.getColumnCount();
-
-            do {
-                K key = convertValue(rs.getObject(1), keyTypeRef);
-                V value;
-                if (columnCount > 1) {
-                    value = mapColumnsToValue(rs, valueTypeRef, 2);
-                } else {
-                    value = convertValue(rs.getObject(1), valueTypeRef);
-                }
-                map.put(key, value);
-            } while (rs.next());
+        Type keyType;
+        Type valueType;
+        if (actualArgs == null || actualArgs.length == 0) {
+            keyType = String.class;
+            valueType = Object.class;
+        } else if (actualArgs.length == 1) {
+            keyType = actualArgs[0];
+            valueType = Object.class;
+        } else {
+            keyType = actualArgs[0];
+            valueType = actualArgs[1];
+        }
+        Class<?> keyRawType = getRawTypeFromType(keyType);
+        Class<?> valueRawType = getRawTypeFromType(valueType);
+        ResultSetMetaData metaData = rs.getMetaData();
+        int columnCount = metaData.getColumnCount();
+        Map<Object, Object> resultMap = new LinkedHashMap<>();
+        for (int i = 1; i <= columnCount; i++) {
+            String columnName = metaData.getColumnLabel(i);
+            Object columnValue = rs.getObject(i);
+            Object key = convertValueToType(columnName, keyRawType);
+            Object value = convertValueToType(columnValue, valueRawType);
+            resultMap.put(key, value);
         }
 
-        return map;
+        return resultMap;
     }
+
+    private static Class<?> getRawTypeFromType(Type type) {
+        if (type == null) {
+            return Object.class;
+        }
+        if (type instanceof Class) {
+            return (Class<?>) type;
+        }
+        if (type instanceof ParameterizedType) {
+            ParameterizedType pt = (ParameterizedType) type;
+            Type rawType = pt.getRawType();
+            if (rawType instanceof Class) {
+                return (Class<?>) rawType;
+            }
+        }
+
+        if (type instanceof WildcardType) {
+            WildcardType wt = (WildcardType) type;
+            Type[] upperBounds = wt.getUpperBounds();
+            if (upperBounds != null && upperBounds.length > 0) {
+                return getRawTypeFromType(upperBounds[0]);
+            }
+        }
+
+        if (type instanceof TypeVariable) {
+            TypeVariable<?> tv = (TypeVariable<?>) type;
+            Type[] bounds = tv.getBounds();
+            if (bounds != null && bounds.length > 0) {
+                return getRawTypeFromType(bounds[0]);
+            }
+        }
+
+        if (type instanceof GenericArrayType) {
+            return Object[].class;
+        }
+
+        return Object.class;
+    }
+
 
     /**
      * 将 ResultSet 转换为数组
@@ -127,8 +348,6 @@ public class JdbcResultMapper {
             E element = mapResultSetToSingleRow(rs, elementTypeRef);
             list.add(element);
         } while (rs.next());
-
-        // 转换为数组
         Class<?> componentClass = getRawType(componentType);
         @SuppressWarnings("unchecked")
         E[] array = (E[]) Array.newInstance(componentClass, list.size());
@@ -161,36 +380,6 @@ public class JdbcResultMapper {
                 field.setAccessible(true);
                 Object value = rs.getObject(i);
                 if (value != null) {   // 类型转换
-                    value = convertValue(value, field.getType());
-                }
-                field.set(instance, value);
-            } catch (NoSuchFieldException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return instance;
-    }
-
-    /**
-     * 将多列映射为对象
-     */
-    private static <T> T mapColumnsToValue(ResultSet rs, JTypeReference<T> typeReference, int startColumn) throws Exception {
-        Class<?> rawType = typeReference.getRawType();
-        if (isSimpleType(rawType)) {
-            return convertValue(rs.getObject(startColumn), typeReference);
-        }
-        T instance = (T)rawType.getDeclaredConstructor().newInstance();
-        ResultSetMetaData metaData = rs.getMetaData();
-        int columnCount = metaData.getColumnCount();
-        for (int i = startColumn; i <= columnCount; i++) {
-            String columnName = metaData.getColumnLabel(i);
-            String fieldName = columnNameToFieldName(columnName);
-            try {
-                Field field = findField(rawType, fieldName);
-                field.setAccessible(true);
-                Object value = rs.getObject(i);
-                if (value != null) {
                     value = convertValue(value, field.getType());
                 }
                 field.set(instance, value);
@@ -312,5 +501,91 @@ public class JdbcResultMapper {
             throw new IllegalArgumentException("不支持的类型: " + type);
         }
     }
+    /**
+     * 通用的值类型转换方法
+     */
+    @SuppressWarnings("unchecked")
+    private static <T> T convertValueToType(Object value, Class<T> targetType) {
+        if (value == null) {
+            return null;
+        }
+        if (targetType.isInstance(value)) {
+            return (T) value;
+        }
+        if (targetType == String.class) {
+            return (T) value.toString();
+        }
+        if (targetType == Integer.class || targetType == int.class) {
+            if (value instanceof Number) {
+                return (T) Integer.valueOf(((Number) value).intValue());
+            }
+            return (T) Integer.valueOf(value.toString());
+        }
+        if (targetType == Long.class || targetType == long.class) {
+            if (value instanceof Number) {
+                return (T) Long.valueOf(((Number) value).longValue());
+            }
+            return (T) Long.valueOf(value.toString());
+        }
+        if (targetType == Double.class || targetType == double.class) {
+            if (value instanceof Number) {
+                return (T) Double.valueOf(((Number) value).doubleValue());
+            }
+            return (T) Double.valueOf(value.toString());
+        }
+        if (targetType == Float.class || targetType == float.class) {
+            if (value instanceof Number) {
+                return (T) Float.valueOf(((Number) value).floatValue());
+            }
+            return (T) Float.valueOf(value.toString());
+        }
+        if (targetType == Boolean.class || targetType == boolean.class) {
+            if (value instanceof Number) {
+                return (T) Boolean.valueOf(((Number) value).intValue() != 0);
+            }
+            if (value instanceof String) {
+                return (T) Boolean.valueOf(Boolean.parseBoolean((String) value));
+            }
+            return (T) Boolean.valueOf(value.toString());
+        }
+        if (targetType == Byte.class || targetType == byte.class) {
+            if (value instanceof Number) {
+                return (T) Byte.valueOf(((Number) value).byteValue());
+            }
+            return (T) Byte.valueOf(value.toString());
+        }
+        if (targetType == Short.class || targetType == short.class) {
+            if (value instanceof Number) {
+                return (T) Short.valueOf(((Number) value).shortValue());
+            }
+            return (T) Short.valueOf(value.toString());
+        }
+        if (targetType == Character.class || targetType == char.class) {
+            String str = value.toString();
+            if (str.length() > 0) {
+                return (T) Character.valueOf(str.charAt(0));
+            }
+        }
+        if (targetType == java.util.Date.class) {
+            if (value instanceof java.sql.Timestamp) {
+                return (T) new java.util.Date(((java.sql.Timestamp) value).getTime());
+            }
+            if (value instanceof java.sql.Date) {
+                return (T) new java.util.Date(((java.sql.Date) value).getTime());
+            }
+        }
+        if (targetType == java.sql.Date.class) {
+            if (value instanceof java.util.Date) {
+                return (T) new java.sql.Date(((java.util.Date) value).getTime());
+            }
+        }
+        if (targetType == java.sql.Timestamp.class) {
+            if (value instanceof java.util.Date) {
+                return (T) new java.sql.Timestamp(((java.util.Date) value).getTime());
+            }
+        }
+        return (T) value;
+    }
+
 
 }

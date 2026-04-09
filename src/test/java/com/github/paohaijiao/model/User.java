@@ -2,6 +2,8 @@ package com.github.paohaijiao.model;
 
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 public class User {
 
@@ -16,4 +18,6 @@ public class User {
     private String email;
 
     private Integer status;
+
+    private Date createTime;
 }

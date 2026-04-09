@@ -3,7 +3,9 @@ package com.example.mapper;
 import com.github.paohaijiao.model.User;
 import com.github.paohaijiao.xml.param.Param;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public interface UserMapper {
 
@@ -23,7 +25,7 @@ public interface UserMapper {
      * 根据ID删除用户
      * @param id 用户ID
      */
-    void deleteUserById(Long id);
+    void deleteUserById(@Param("id") Long id);
 
     /**
      * 批量删除用户
@@ -35,21 +37,24 @@ public interface UserMapper {
      * 更新用户信息
      * @param user 用户实体（含ID）
      */
-    void updateUser(User user);
+    void updateUser(@Param("user") User user);
 
     /**
      * 根据ID查询用户
      * @param id 用户ID
      * @return 用户实体
      */
-    User getUserById(Long id);
+    User getUserById(@Param("id")Long id);
 
+    Map<String,Object> getUserDetailById(@Param("id")Long id);
     /**
      * 条件查询用户列表
      * @param user 查询条件
      * @return 用户列表
      */
-    List<User> findUserList(User user);
+    List<User> findUserList(@Param("user")User user);
+
+    List<HashMap<String,Object>> findUserMapList(@Param("user")User user);
 
     /**
      * 批量查询用户
@@ -57,4 +62,12 @@ public interface UserMapper {
      * @return 用户列表
      */
     List<User> getUserByIds(@Param("ids") List<Long> ids);
+
+    /**
+     *
+     * @param users
+     * @return
+     */
+    List<User> getUserByUserNames(@Param("users") List<User> users);
+    List<User> getUserByUserNamesAndValue(@Param("users") List<User> users);
 }

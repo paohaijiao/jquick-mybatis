@@ -8,13 +8,13 @@
     </parent>
     <artifactId>jquick-mybatis</artifactId>
     <dependencies>
-        <dependency>
-            <groupId>com.dameng</groupId>
-            <artifactId>DmJdbcDriver</artifactId>
-            <version>8.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/src/main/resources/lib/DmJdbcDriver18-8.1.2.192.jar</systemPath>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.dameng</groupId>-->
+<!--            <artifactId>DmJdbcDriver</artifactId>-->
+<!--            <version>8.0</version>-->
+<!--            <scope>system</scope>-->
+<!--            <systemPath>${project.basedir}/src/main/resources/lib/DmJdbcDriver18-8.1.2.192.jar</systemPath>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
