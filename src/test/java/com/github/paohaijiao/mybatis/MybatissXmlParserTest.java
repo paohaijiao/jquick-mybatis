@@ -3,6 +3,7 @@ package com.github.paohaijiao.mybatis;
 import com.example.mapper.UserMapper;
 import com.github.paohaijiao.ds.JQuickConnection;
 import com.github.paohaijiao.ds.impl.JBasicConnection;
+import com.github.paohaijiao.model.JPage;
 import com.github.paohaijiao.model.User;
 import com.github.paohaijiao.xml.JQuickMyBatisXmlParseHandler;
 import com.github.paohaijiao.xml.factory.JQuickFactory;
@@ -19,7 +20,7 @@ import static dm.jdbc.desc.Configuration.user;
 public class MybatissXmlParserTest {
     private DataSource getDBConfig() throws ClassNotFoundException, SQLException {
         String userName = "SYSDBA";
-        String password = "CDuSer@123";
+        String password = "CDu";
         String clazz = "dm.jdbc.driver.DmDriver";
         String url = "jdbc:dm://127.0.0.1:5236";
         JQuickConnection config = new JBasicConnection(clazz, url, userName, password);
@@ -219,6 +220,25 @@ public class MybatissXmlParserTest {
         user2.setUsername("泡海椒");
         users.add(user2);
         List<User> userList = userApi.getUserByUserNamesAndValue(users);
+        handler.close();
+        System.out.println(userList);
+    }
+
+    @Test
+    public void page() throws IOException, SQLException, ClassNotFoundException {
+        DataSource connection=getDBConfig();
+        JQuickMyBatisXmlParseHandler handler=new JQuickMyBatisXmlParseHandler(connection);
+        JQuickFactory factory = new JQuickXmlFactory(handler,"mybatis.xml");
+        System.out.println(factory);
+        UserMapper userApi = factory.createApi(UserMapper.class);
+        List<User> users=new ArrayList<>();
+        User user1=new User();
+        user1.setUsername("测试人员");
+        users.add(user1);
+        User user2=new User();
+        user2.setUsername("paohaijiao1");
+        users.add(user2);
+        JPage<User> userList = userApi.page(1,4,users);
         handler.close();
         System.out.println(userList);
     }

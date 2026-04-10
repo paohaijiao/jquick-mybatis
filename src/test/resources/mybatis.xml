@@ -118,7 +118,12 @@
         </foreach>
     </select>
 
-
+    <select name="page" returnClass="java.util.List">
+        SELECT * FROM test.t_user WHERE username IN
+        <foreach collection="users" item="user" open="(" separator="," close=")">
+            '#{user.username}'
+        </foreach>
+    </select>
 
 
 

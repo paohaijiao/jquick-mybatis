@@ -1,5 +1,7 @@
 package com.example.mapper;
 
+import com.github.paohaijiao.anno.JPageParam;
+import com.github.paohaijiao.model.JPage;
 import com.github.paohaijiao.model.User;
 import com.github.paohaijiao.xml.param.Param;
 
@@ -69,5 +71,8 @@ public interface UserMapper {
      * @return
      */
     List<User> getUserByUserNames(@Param("users") List<User> users);
+
     List<User> getUserByUserNamesAndValue(@Param("users") List<User> users);
+
+    JPage<User> page(@JPageParam("pageNum") Integer pageNum, @JPageParam("pageSize") Integer pageSize, @Param("users") List<User> users);
 }

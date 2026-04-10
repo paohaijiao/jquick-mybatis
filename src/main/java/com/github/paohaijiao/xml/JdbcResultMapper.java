@@ -1,5 +1,6 @@
 package com.github.paohaijiao.xml;
 
+import com.github.paohaijiao.model.JPage;
 import com.github.paohaijiao.type.JTypeReference;
 
 import java.lang.reflect.*;
