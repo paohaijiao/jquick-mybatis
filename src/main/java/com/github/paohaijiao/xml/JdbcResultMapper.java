@@ -269,6 +269,7 @@ public class JdbcResultMapper {
         if (rs == null) {
             return new LinkedHashMap<>();
         }
+        rs.next();
         Type[] actualArgs = typeReference.getActualTypeArguments();
         Type keyType;
         Type valueType;
@@ -370,6 +371,7 @@ public class JdbcResultMapper {
      */
     private static <T> T mapToBean(ResultSet rs, Class<T> beanClass) throws Exception {
         T instance = beanClass.getDeclaredConstructor().newInstance();
+        rs.next();
         ResultSetMetaData metaData = rs.getMetaData();
         int columnCount = metaData.getColumnCount();
         for (int i = 1; i <= columnCount; i++) {

@@ -19,7 +19,7 @@ import static dm.jdbc.desc.Configuration.user;
 public class MybatissXmlParserTest {
     private DataSource getDBConfig() throws ClassNotFoundException, SQLException {
         String userName = "SYSDBA";
-        String password = "123";
+        String password = "CDuSer@123";
         String clazz = "dm.jdbc.driver.DmDriver";
         String url = "jdbc:dm://127.0.0.1:5236";
         JQuickConnection config = new JBasicConnection(clazz, url, userName, password);
@@ -33,7 +33,7 @@ public class MybatissXmlParserTest {
         System.out.println(factory);
         UserMapper userApi = factory.createApi(UserMapper.class);
         User user = new User();
-        user.setId(3L);
+        user.setId(7L);
         user.setUsername("paohaijiao1");
         user.setPassword("123456abc1");
         user.setAge(25);
@@ -41,6 +41,7 @@ public class MybatissXmlParserTest {
         user.setStatus(1);
         user.setCreateTime(new Date());
         userApi.insertUser(user);
+        User user1 = userApi.getUserById(7L);
         handler.close();
         System.out.println(user);
     }
@@ -52,7 +53,7 @@ public class MybatissXmlParserTest {
         System.out.println(factory);
         UserMapper userApi = factory.createApi(UserMapper.class);
         User user = new User();
-        user.setId(5L);
+        user.setId(8L);
         user.setUsername("paohaijiao");
         user.setPassword("123456abc");
         user.setAge(25);
@@ -62,7 +63,7 @@ public class MybatissXmlParserTest {
         List<User> list = new ArrayList<>();
         list.add(user);
         User user1 = new User();
-        user1.setId(6L);
+        user1.setId(9L);
         user1.setUsername("paohaijiao1");
         user1.setPassword("123456abc1");
         user1.setAge(25);
@@ -81,7 +82,7 @@ public class MybatissXmlParserTest {
         JQuickFactory factory = new JQuickXmlFactory(handler,"mybatis.xml");
         System.out.println(factory);
         UserMapper userApi = factory.createApi(UserMapper.class);
-        userApi.deleteUserById(6L);
+        userApi.deleteUserById(9L);
         handler.close();
         System.out.println(user);
     }
@@ -93,8 +94,8 @@ public class MybatissXmlParserTest {
         System.out.println(factory);
         UserMapper userApi = factory.createApi(UserMapper.class);
         List<Long> ids=new ArrayList<>();
-        ids.add(6L);
-        ids.add(5L);
+        ids.add(8L);
+        ids.add(9L);
         userApi.batchDeleteUser(ids);
         handler.close();
         System.out.println(user);
@@ -108,7 +109,7 @@ public class MybatissXmlParserTest {
         UserMapper userApi = factory.createApi(UserMapper.class);
         User user1 = new User();
         user1.setId(3L);
-        user1.setUsername("泡海椒");
+        user1.setUsername("测试人员");
         user1.setPassword("1qaz@WSX");
         user1.setAge(26);
         user1.setEmail("test@example1.com");
