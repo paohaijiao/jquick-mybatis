@@ -1,10 +1,12 @@
 package com.github.paohaijiao.model;
 
+import com.github.paohaijiao.anno.JTable;
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
+@JTable(value = "test.t_user")
 public class User {
 
     private Long id;

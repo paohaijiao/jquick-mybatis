@@ -23,6 +23,7 @@ import com.github.paohaijiao.model.JKeyValue;
 import com.github.paohaijiao.model.JOrder;
 import com.github.paohaijiao.model.JPage;
 import com.github.paohaijiao.statement.JNamedParameterPreparedStatement;
+import com.github.paohaijiao.util.JPageUtil;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -47,11 +48,6 @@ public class JLambdaQueryPageImpl<T> extends JLambdaBaseImpl<T> {
     }
 
     public JPage<T> page() {
-        long total = count();
-        int pages = (int) (total / pageSize);
-        if (total % pageSize != 0) {
-            pages++;
-        }
         String sql = buildSelectSQL();
         String pageSql = buildPageSQL(sql);
         List<T> records = new ArrayList<>();
@@ -68,28 +64,12 @@ public class JLambdaQueryPageImpl<T> extends JLambdaBaseImpl<T> {
                 namedParameterPreparedStatement.setParameter(model);
             }
 
-            JKeyValue limitModel = new JKeyValue();
-            limitModel.setNum(conditions.size() + 1);
-            limitModel.setKey("limit");
-            limitModel.setValue(pageSize);
-            namedParameterPreparedStatement.setParameter(limitModel);
-            JKeyValue offsetModel = new JKeyValue();
-            offsetModel.setNum(conditions.size() + 2);
-            offsetModel.setKey("offset");
-            offsetModel.setValue((this.pageNum - 1) * pageSize);
-            namedParameterPreparedStatement.setParameter(offsetModel);
-            namedParameterPreparedStatement.setParameter(offsetModel);
             ResultSet resultSet = namedParameterPreparedStatement.executeQuery();
             while (resultSet.next()) {
                 T t = resultSetToObject(resultSet, entityClass);
                 records.add(t);
             }
-            return new JPage<T>()
-                    .setRecords(records)
-                    .setTotal(total)
-                    .setSize(pageSize)
-                    .setCurrent(pageNum)
-                    .setPages(pages);
+            return JPageUtil.page(records, pageNum, pageSize);
         } catch (Exception exception) {
             exception.printStackTrace();
             throw new RuntimeException("failed to conduct page query", exception);
@@ -97,7 +77,7 @@ public class JLambdaQueryPageImpl<T> extends JLambdaBaseImpl<T> {
     }
 
     protected String buildPageSQL(String originalSql) {
-        return originalSql + " LIMIT #{limit} OFFSET #{offset}";
+        return originalSql + " ";
     }
 
     public long count() {

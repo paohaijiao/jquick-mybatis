@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  * @version 1.0.0
  * @since 2025/7/8
  */
-public class JListPageUtil {
+public class JPageUtil {
 
     /**
      * 对 List 进行分页

@@ -1,9 +1,14 @@
 package com.github.paohaijiao.mybatis;
 
 import com.example.mapper.UserMapper;
+import com.github.paohaijiao.connection.JSqlConnectionFactory;
+import com.github.paohaijiao.connection.impl.DefaultSqlConnectionactory;
 import com.github.paohaijiao.ds.JQuickConnection;
 import com.github.paohaijiao.ds.impl.JBasicConnection;
+import com.github.paohaijiao.factory.JLambdaMapperFactory;
+import com.github.paohaijiao.mapper.JLambdaMapper;
 import com.github.paohaijiao.model.JPage;
+import com.github.paohaijiao.model.JUser;
 import com.github.paohaijiao.model.User;
 import com.github.paohaijiao.xml.JQuickMyBatisXmlParseHandler;
 import com.github.paohaijiao.xml.factory.JQuickFactory;
@@ -34,7 +39,7 @@ public class MybatissXmlParserTest {
         System.out.println(factory);
         UserMapper userApi = factory.createApi(UserMapper.class);
         User user = new User();
-        user.setId(7L);
+        user.setId(8L);
         user.setUsername("paohaijiao1");
         user.setPassword("123456abc1");
         user.setAge(25);
@@ -42,7 +47,7 @@ public class MybatissXmlParserTest {
         user.setStatus(1);
         user.setCreateTime(new Date());
         userApi.insertUser(user);
-        User user1 = userApi.getUserById(7L);
+        User user1 = userApi.getUserById(8L);
         handler.close();
         System.out.println(user);
     }
@@ -54,7 +59,7 @@ public class MybatissXmlParserTest {
         System.out.println(factory);
         UserMapper userApi = factory.createApi(UserMapper.class);
         User user = new User();
-        user.setId(8L);
+        user.setId(10L);
         user.setUsername("paohaijiao");
         user.setPassword("123456abc");
         user.setAge(25);
@@ -110,7 +115,7 @@ public class MybatissXmlParserTest {
         UserMapper userApi = factory.createApi(UserMapper.class);
         User user1 = new User();
         user1.setId(3L);
-        user1.setUsername("测试人员");
+        user1.setUsername("测试人员1");
         user1.setPassword("1qaz@WSX");
         user1.setAge(26);
         user1.setEmail("test@example1.com");
@@ -162,7 +167,7 @@ public class MybatissXmlParserTest {
         System.out.println(factory);
         UserMapper userApi = factory.createApi(UserMapper.class);
         User user=new User();
-        user.setUsername("test");
+        user.setUsername("paohaijiao");
         List<HashMap<String,Object>> user1 = userApi.findUserMapList(user);
         handler.close();
         System.out.println(user);
@@ -194,7 +199,7 @@ public class MybatissXmlParserTest {
         user.setUsername("test");
         List<User> users=new ArrayList<>();
         User user1=new User();
-        user1.setUsername("test1");
+        user1.setUsername("测试人员1");
         users.add(user1);
         User user2=new User();
         user2.setUsername("泡海椒");
@@ -243,7 +248,14 @@ public class MybatissXmlParserTest {
         System.out.println(userList);
     }
 
-
+    @Test
+    public void page1() throws IOException, SQLException, ClassNotFoundException {
+        JSqlConnectionFactory sqlSessionFactory = new DefaultSqlConnectionactory(getDBConfig());
+        JLambdaMapperFactory factory = new JLambdaMapperFactory(sqlSessionFactory);
+        JLambdaMapper<User> userMapper = factory.createMapper(User.class);
+        JPage<User> list = userMapper.page().orderByDesc(User::getAge).page(1, 5);
+        System.out.println(list);
+    }
 
 
 

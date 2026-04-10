@@ -6,10 +6,9 @@ import com.github.paohaijiao.model.JPage;
 import com.github.paohaijiao.model.JPageParams;
 import com.github.paohaijiao.param.JContext;
 import com.github.paohaijiao.type.JTypeReference;
-import com.github.paohaijiao.util.JListPageUtil;
+import com.github.paohaijiao.util.JPageUtil;
 import com.github.paohaijiao.xml.invocation.JQuickXmlInvocationHandler;
 
-import javax.sql.DataSource;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
@@ -17,7 +16,6 @@ import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 
 public class JQuickMyBatisXmlInvocationHandler extends JQuickXmlInvocationHandler {
@@ -52,7 +50,7 @@ public class JQuickMyBatisXmlInvocationHandler extends JQuickXmlInvocationHandle
                 Type elementType = getPageElementType(genericReturnType);
                 JTypeReference<List<?>> listTypeRef = createListTypeReference(elementType);
                 List<?> allData = (List<?>) JdbcResultMapper.mapResultSet(rs, listTypeRef);
-                return JListPageUtil.page(allData, pageParams.getPageNum(), pageParams.getPageSize());
+                return JPageUtil.page(allData, pageParams.getPageNum(), pageParams.getPageSize());
             }else{
                 JTypeReference<?> typeRef = createTypeReference(genericReturnType);
                 return JdbcResultMapper.mapResultSet(rs, typeRef);

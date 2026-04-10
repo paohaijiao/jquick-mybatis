@@ -19,7 +19,7 @@ import com.github.paohaijiao.anno.JColumn;
 import com.github.paohaijiao.anno.JTable;
 import lombok.Data;
 
-@JTable("j_user")
+@JTable("test.t_user")
 @Data
 public class JUser {
     @JColumn(id = true)
