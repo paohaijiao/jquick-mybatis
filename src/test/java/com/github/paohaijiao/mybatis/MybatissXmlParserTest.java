@@ -20,8 +20,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 
-import static dm.jdbc.desc.Configuration.user;
-
 public class MybatissXmlParserTest {
     private DataSource getDBConfig() throws ClassNotFoundException, SQLException {
         String userName = "SYSDBA";
@@ -90,7 +88,6 @@ public class MybatissXmlParserTest {
         UserMapper userApi = factory.createApi(UserMapper.class);
         userApi.deleteUserById(9L);
         handler.close();
-        System.out.println(user);
     }
     @Test
     public void batchDeleteUser() throws IOException, SQLException, ClassNotFoundException {
@@ -104,7 +101,6 @@ public class MybatissXmlParserTest {
         ids.add(9L);
         userApi.batchDeleteUser(ids);
         handler.close();
-        System.out.println(user);
     }
     @Test
     public void updateUser() throws IOException, SQLException, ClassNotFoundException {
@@ -123,7 +119,6 @@ public class MybatissXmlParserTest {
         user1.setCreateTime(new Date());
         userApi.updateUser(user1);
         handler.close();
-        System.out.println(user);
     }
     @Test
     public void getUserById() throws IOException, SQLException, ClassNotFoundException {
@@ -134,7 +129,6 @@ public class MybatissXmlParserTest {
         UserMapper userApi = factory.createApi(UserMapper.class);
         User user1 = userApi.getUserById(3L);
         handler.close();
-        System.out.println(user);
     }
     @Test
     public void getUserDetailById() throws IOException, SQLException, ClassNotFoundException {
@@ -145,7 +139,6 @@ public class MybatissXmlParserTest {
         UserMapper userApi = factory.createApi(UserMapper.class);
         Map<String,Object> user1 = userApi.getUserDetailById(3L);
         handler.close();
-        System.out.println(user);
     }
     @Test
     public void findUserList() throws IOException, SQLException, ClassNotFoundException {
@@ -157,7 +150,6 @@ public class MybatissXmlParserTest {
         User user=new User();
         List<User> user1 = userApi.findUserList(user);
         handler.close();
-        System.out.println(user);
     }
     @Test
     public void findUserMapList() throws IOException, SQLException, ClassNotFoundException {
@@ -170,7 +162,6 @@ public class MybatissXmlParserTest {
         user.setUsername("paohaijiao");
         List<HashMap<String,Object>> user1 = userApi.findUserMapList(user);
         handler.close();
-        System.out.println(user);
     }
     @Test
     public void getUserByIds() throws IOException, SQLException, ClassNotFoundException {
@@ -186,7 +177,6 @@ public class MybatissXmlParserTest {
         ids.add(3L);
         List<User> user1 = userApi.getUserByIds(ids);
         handler.close();
-        System.out.println(user);
     }
     @Test
     public void getUserByUserNames() throws IOException, SQLException, ClassNotFoundException {
