@@ -113,7 +113,7 @@
         SELECT * FROM test.t_user WHERE username IN
         <foreach collection="users" item="user" open="(" separator="," close=")">
             <if test="user.username != null and user.username != ''">
-                AND username LIKE '%#{user.username}%'
+                  '#{user.username}'
             </if>
         </foreach>
     </select>

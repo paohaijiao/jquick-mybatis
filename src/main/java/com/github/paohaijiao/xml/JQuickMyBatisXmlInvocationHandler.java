@@ -5,6 +5,7 @@ import com.github.paohaijiao.exception.JAssert;
 import com.github.paohaijiao.model.JPage;
 import com.github.paohaijiao.model.JPageParams;
 import com.github.paohaijiao.param.JContext;
+import com.github.paohaijiao.statement.JQuickStatementResultMapper;
 import com.github.paohaijiao.type.JTypeReference;
 import com.github.paohaijiao.util.JPageUtil;
 import com.github.paohaijiao.xml.invocation.JQuickXmlInvocationHandler;
@@ -49,11 +50,11 @@ public class JQuickMyBatisXmlInvocationHandler extends JQuickXmlInvocationHandle
                 JPageParams pageParams = extractPageParams(method, jContext,args);
                 Type elementType = getPageElementType(genericReturnType);
                 JTypeReference<List<?>> listTypeRef = createListTypeReference(elementType);
-                List<?> allData = (List<?>) JdbcResultMapper.mapResultSet(rs, listTypeRef);
+                List<?> allData = (List<?>) JQuickStatementResultMapper.mapResultSet(rs, listTypeRef);
                 return JPageUtil.page(allData, pageParams.getPageNum(), pageParams.getPageSize());
             }else{
                 JTypeReference<?> typeRef = createTypeReference(genericReturnType);
-                return JdbcResultMapper.mapResultSet(rs, typeRef);
+                return JQuickStatementResultMapper.mapResultSet(rs, typeRef);
             }
         } catch (Exception e) {
             e.printStackTrace();

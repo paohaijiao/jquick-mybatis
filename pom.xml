@@ -4,18 +4,18 @@
     <parent>
         <groupId>io.github.paohaijiao</groupId>
         <artifactId>javelin</artifactId>
-        <version>1.4.2</version>
+        <version>1.7.1</version>
     </parent>
     <artifactId>jquick-mybatis</artifactId>
     <version>1.5.0</version>
     <dependencies>
-<!--        <dependency>-->
-<!--            <groupId>com.dameng</groupId>-->
-<!--            <artifactId>DmJdbcDriver</artifactId>-->
-<!--            <version>8.0</version>-->
-<!--            <scope>system</scope>-->
-<!--            <systemPath>${project.basedir}/src/main/resources/lib/DmJdbcDriver18-8.1.2.192.jar</systemPath>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>com.dameng</groupId>
+            <artifactId>DmJdbcDriver</artifactId>
+            <version>8.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/resources/lib/DmJdbcDriver18-8.1.2.192.jar</systemPath>
+        </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -29,7 +29,7 @@
         <dependency>
             <groupId>io.github.paohaijiao</groupId>
             <artifactId>javelin-core</artifactId>
-            <version>1.4.2</version>
+            <version>1.7.1</version>
         </dependency>
         <dependency>
             <groupId>cn.hutool</groupId>
