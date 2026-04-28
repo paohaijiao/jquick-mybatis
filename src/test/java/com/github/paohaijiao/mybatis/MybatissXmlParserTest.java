@@ -23,7 +23,7 @@ import java.util.*;
 public class MybatissXmlParserTest {
     private DataSource getDBConfig() throws ClassNotFoundException, SQLException {
         String userName = "SYSDBA";
-        String password = "CDuSer@123";
+        String password = "";
         String clazz = "dm.jdbc.driver.DmDriver";
         String url = "jdbc:dm://127.0.0.1:5236";
         JQuickConnection config = new JBasicConnection(clazz, url, userName, password);
