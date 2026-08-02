@@ -1,6 +1,8 @@
 package com.github.paohaijiao.xml;
 
 import com.github.paohaijiao.anno.JPageParam;
+import com.github.paohaijiao.banner.JQuickBanner;
+import com.github.paohaijiao.banner.impl.JQuickBannerImpl;
 import com.github.paohaijiao.exception.JAssert;
 import com.github.paohaijiao.model.JPage;
 import com.github.paohaijiao.model.JPageParams;
@@ -37,6 +39,8 @@ public class JQuickMyBatisXmlInvocationHandler extends JQuickXmlInvocationHandle
 
     @Override
     protected Object loadResult(String sql, JContext jContext, Method method,Object[] args) {
+        JQuickBanner banner= JQuickBannerImpl.getInstance();
+        banner.printBanner();
         JAssert.notNull(connection, "Connection is null");
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
